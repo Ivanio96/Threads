@@ -1,23 +1,45 @@
 package sample;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
+import java.sql.SQLOutput;
 
-public class Main extends Application {
+class Counter {
 
-    @Override
-    public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
-        primaryStage.show();
+    int count;
+
+    public synchronized void increment() {
+        count++;
     }
+}
 
+class Test1 {
 
-    public static void main(String[] args) {
-        launch(args);
+    public static void main(String[] args) throws Exception {
+        Counter c = new Counter();
+
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for(int i=1; i<=1000; i++){
+                    c.increment();
+                }
+            }
+        });
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for(int i=1; i<=1000; i++){
+                    c.increment();
+                }
+            }
+        });
+
+        t1.start();
+        t2.start();
+
+        t1.join();
+        t2.join();
+
+        System.out.println(c.count);
     }
 }
